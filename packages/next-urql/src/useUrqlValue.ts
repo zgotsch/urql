@@ -34,10 +34,14 @@ export function useUrqlValue(operationKey: number): void {
       rehydrationContext.operationValuesByKey[operationKey] = parsed;
     }
   } else {
-    const stores = (window[urqlTransportSymbol as any] ||
-      []) as unknown as Array<{
-      rehydrate: Record<number, UrqlResult>;
-    }>;
+    let stores: Array<{ rehydrate: Record<number, UrqlResult> }>;
+    if (window[urqlTransportSymbol as any]) {
+      stores = (
+        window[urqlTransportSymbol as any] as unknown as Array<string>
+      ).map(s => JSON.parse(decodeBase64(s)));
+    } else {
+      stores = [];
+    }
 
     const store = stores.find(
       x => x && x.rehydrate && x.rehydrate[operationKey]
@@ -57,4 +61,14 @@ export function useUrqlValue(operationKey: number): void {
       }
     }
   }
+}
+
+function decodeBase64(base64) {
+  const text = atob(base64);
+  const bytes = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i++) {
+    bytes[i] = text.charCodeAt(i);
+  }
+  const decoder = new TextDecoder(); // default is utf-8
+  return decoder.decode(bytes);
 }
