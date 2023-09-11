@@ -19,7 +19,9 @@ const DataHydrationContext = React.createContext<
 
 function transportDataToJS(data: any) {
   const key = 'urql_transport';
-  return `(window[Symbol.for("${key}")] ??= []).push(${JSON.stringify(data)})`;
+  return `(window[Symbol.for("${key}")] ??= []).push(${Buffer.from(
+    JSON.stringify(data)
+  ).toString('base64')})`;
 }
 
 export const DataHydrationContextProvider = ({
