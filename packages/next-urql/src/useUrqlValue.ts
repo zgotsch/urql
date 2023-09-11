@@ -34,10 +34,14 @@ export function useUrqlValue(operationKey: number): void {
       rehydrationContext.operationValuesByKey[operationKey] = parsed;
     }
   } else {
-    const stores = (window[urqlTransportSymbol as any] ||
-      []) as unknown as Array<{
-      rehydrate: Record<number, UrqlResult>;
-    }>;
+    let stores: Array<{ rehydrate: Record<number, UrqlResult> }>;
+    if (window[urqlTransportSymbol as any]) {
+      stores = (
+        window[urqlTransportSymbol as any] as unknown as Array<string>
+      ).map(s => JSON.parse(window.atob(s)));
+    } else {
+      stores = [];
+    }
 
     const store = stores.find(
       x => x && x.rehydrate && x.rehydrate[operationKey]
