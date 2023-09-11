@@ -34,8 +34,9 @@ export function useUrqlValue(operationKey: number): void {
       rehydrationContext.operationValuesByKey[operationKey] = parsed;
     }
   } else {
-    const stores = (window[urqlTransportSymbol as any] ||
-      []) as unknown as Array<{
+    const stores = (window[urqlTransportSymbol as any]
+      ? atob(window[urqlTransportSymbol as any] as any)
+      : []) as unknown as Array<{
       rehydrate: Record<number, UrqlResult>;
     }>;
 
